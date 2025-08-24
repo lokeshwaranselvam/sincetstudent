@@ -1,0 +1,208 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Student Dashboard</title>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <style>
+    body {
+      margin: 0;
+      padding: 0;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background: radial-gradient(circle at top, #0a1f3c, #000);
+      color: #fff;
+      overflow-x: hidden;
+    }
+
+    header {
+      background: rgba(255,255,255,0.08);
+      backdrop-filter: blur(12px);
+      padding: 20px;
+      text-align: center;
+      font-size: 24px;
+      font-weight: bold;
+      box-shadow: 0 4px 20px rgba(0,0,0,0.3);
+    }
+
+    .dashboard {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+      gap: 20px;
+      padding: 30px;
+    }
+
+    .card {
+      background: rgba(255, 255, 255, 0.08);
+      backdrop-filter: blur(12px);
+      border-radius: 20px;
+      padding: 20px;
+      box-shadow: 0 8px 32px rgba(0,0,0,0.4);
+      animation: fadeInUp 1s ease-in-out;
+    }
+
+    @keyframes fadeInUp {
+      from { opacity: 0; transform: translateY(30px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    .card h3 {
+      margin-bottom: 15px;
+      font-size: 20px;
+      border-bottom: 1px solid rgba(255,255,255,0.2);
+      padding-bottom: 8px;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 10px;
+    }
+    th, td {
+      padding: 8px;
+      text-align: center;
+      border-bottom: 1px solid rgba(255,255,255,0.2);
+    }
+    th {
+      color: #90caf9;
+    }
+
+    .leaderboard li {
+      list-style: none;
+      padding: 8px;
+      border-bottom: 1px solid rgba(255,255,255,0.2);
+    }
+    .leaderboard li span {
+      float: right;
+      color: #90caf9;
+    }
+
+    .activities label {
+      display: block;
+      margin: 8px 0;
+      cursor: pointer;
+    }
+
+    .upload-box {
+      margin-top: 6px;
+      margin-bottom: 12px;
+    }
+    .upload-box input[type="file"] {
+      background: rgba(255,255,255,0.1);
+      border: 1px solid rgba(255,255,255,0.2);
+      padding: 6px;
+      border-radius: 10px;
+      color: #fff;
+      width: 100%;
+      font-size: 14px;
+    }
+  </style>
+</head>
+<body>
+  <header>
+    🎓 Student Dashboard
+  </header>
+
+  <section class="dashboard">
+    <!-- Student Info -->
+    <div class="card">
+      <h3>Student Info</h3>
+      <p><b>Name:</b> {{ fullname }}</p>
+      <p><b>Register No:</b> {{ reg_no }}</p>
+      <p><b>Department:</b> {{ department }}</p>
+    </div>
+
+    <!-- GPA & CGPA -->
+    <div class="card">
+      <h3>Performance</h3>
+      <p><b>GPA:</b> {{ gpa }}</p>
+      <p><b>CGPA:</b> {{ cgpa }}</p>
+    </div>
+
+    <!-- Subject Marks -->
+    <div class="card">
+      <h3>Subject Marks</h3>
+      <table>
+        <tr><th>Subject</th><th>Marks</th></tr>
+        {% if marks %}
+          {% for subject, mark in marks.items() %}
+            <tr><td>{{ subject }}</td><td>{{ mark }}</td></tr>
+          {% endfor %}
+        {% else %}
+          <tr><td colspan="2">No marks available</td></tr>
+        {% endif %}
+      </table>
+    </div>
+
+    <!-- Monthly Activities -->
+    <div class="card">
+      <h3>Monthly Activities</h3>
+      <div class="activities">
+        <label><input type="checkbox" class="activity" data-index="0"> 📜 Paper Presentation</label>
+        <div class="upload-box"><input type="file" accept=".pdf,.ppt,.pptx,.jpg,.png"></div>
+
+        <label><input type="checkbox" class="activity" data-index="1"> 🎮 Programming Contest</label>
+        <div class="upload-box"><input type="file" accept=".pdf,.zip,.jpg,.png"></div>
+
+        <label><input type="checkbox" class="activity" data-index="2"> ⚽ Sports</label>
+        <div class="upload-box"><input type="file" accept=".jpg,.png,.pdf"></div>
+
+        <label><input type="checkbox" class="activity" data-index="3"> 🎤 Event Participation</label>
+        <div class="upload-box"><input type="file" accept=".pdf,.jpg,.png"></div>
+      </div>
+    </div>
+
+    <!-- Progress Graph -->
+    <div class="card">
+      <h3>📊 Progress Tracker</h3>
+      <canvas id="progressChart"></canvas>
+    </div>
+
+    <!-- Leaderboard -->
+    <div class="card">
+      <h3>🏆 Student of the Month</h3>
+      <ul class="leaderboard">
+        <li>1️⃣ Alice <span>95 pts</span></li>
+        <li>2️⃣ {{ fullname }} <span>92 pts</span></li>
+        <li>3️⃣ Rahul <span>90 pts</span></li>
+      </ul>
+    </div>
+  </section>
+
+  <script>
+    // Initialize Chart
+    const ctx = document.getElementById('progressChart').getContext('2d');
+    const progressChart = new Chart(ctx, {
+      type: 'bar',
+      data: {
+        labels: ['Paper', 'Programming', 'Sports', 'Event'],
+        datasets: [{
+          label: 'Completed',
+          data: [0, 0, 0, 0],
+          backgroundColor: ['#42a5f5','#66bb6a','#ffa726','#ab47bc']
+        }]
+      },
+      options: {
+        responsive: true,
+        scales: {
+          y: {
+            beginAtZero: true,
+            max: 1,
+            ticks: { stepSize: 1 }
+          }
+        }
+      }
+    });
+
+    // Update chart on checkbox change
+    const checkboxes = document.querySelectorAll('.activity');
+    checkboxes.forEach(box => {
+      box.addEventListener('change', () => {
+        const index = box.getAttribute('data-index');
+        progressChart.data.datasets[0].data[index] = box.checked ? 1 : 0;
+        progressChart.update();
+      });
+    });
+  </script>
+</body>
+</html>

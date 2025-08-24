@@ -1,0 +1,223 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Student Progress Tracker - Login</title>
+  <style>
+    body {
+      margin: 0;
+      height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background: radial-gradient(circle at top, #0a1f3c, #000);
+      overflow: hidden;
+    }
+    .circle {
+      position: absolute;
+      border-radius: 50%;
+      background: rgba(255,255,255,0.08);
+      animation: float 8s infinite;
+    }
+    .circle:nth-child(1) { width: 120px; height: 120px; left: 20%; top: 15%; animation-duration: 12s; }
+    .circle:nth-child(2) { width: 200px; height: 200px; right: 15%; top: 10%; animation-duration: 15s; }
+    .circle:nth-child(3) { width: 150px; height: 150px; left: 10%; bottom: 10%; animation-duration: 10s; }
+    .circle:nth-child(4) { width: 250px; height: 250px; right: 20%; bottom: 5%; animation-duration: 18s; }
+
+    @keyframes float {
+      0% { transform: translateY(0px); }
+      50% { transform: translateY(-20px); }
+      100% { transform: translateY(0px); }
+    }
+
+    .glass-card {
+      position: relative;
+      background: rgba(255, 255, 255, 0.08);
+      border-radius: 20px;
+      padding: 40px;
+      width: 380px;
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
+      text-align: center;
+      z-index: 10;
+      animation: fadeIn 1s ease-in-out;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: scale(0.95); }
+      to { opacity: 1; transform: scale(1); }
+    }
+
+    .glass-card h2 {
+      margin-bottom: 10px;
+      font-size: 26px;
+      font-weight: 600;
+      color: #fff;
+    }
+    .glass-card p {
+      font-size: 14px;
+      margin-bottom: 25px;
+      color: #cfd8dc;
+    }
+
+    .glass-card input {
+      width: 92%;
+      padding: 12px 14px;
+      margin: 10px 0;
+      border: none;
+      border-radius: 10px;
+      outline: none;
+      background: rgba(255, 255, 255, 0.2);
+      color: #fff;
+      font-size: 14px;
+      transition: 0.3s;
+    }
+    .glass-card input::placeholder { color: #ddd; }
+    .glass-card input:focus {
+      background: rgba(255,255,255,0.3);
+      box-shadow: 0 0 6px rgba(255,255,255,0.4);
+    }
+
+    .btn {
+      width: 100%;
+      padding: 12px;
+      margin: 12px 0;
+      border: none;
+      border-radius: 10px;
+      background: linear-gradient(135deg, #2196f3, #21cbf3);
+      color: white;
+      font-weight: bold;
+      font-size: 15px;
+      cursor: pointer;
+      transition: 0.3s;
+    }
+    .btn:hover {
+      transform: translateY(-2px);
+      background: linear-gradient(135deg, #1976d2, #1bb2d2);
+    }
+
+    .social.google { background: #db4437; }
+    .social.github { background: #333; }
+    .social.google:hover { background: #b5382c; }
+    .social.github:hover { background: #222; }
+
+    .divider {
+      margin: 25px 0;
+      font-size: 14px;
+      color: #aaa;
+      position: relative;
+    }
+    .divider::before,
+    .divider::after {
+      content: "";
+      position: absolute;
+      top: 50%;
+      width: 40%;
+      height: 1px;
+      background: #444;
+    }
+    .divider::before { left: 0; }
+    .divider::after { right: 0; }
+
+    .toggle-link {
+      margin-top: 15px;
+      font-size: 14px;
+      color: #90caf9;
+      cursor: pointer;
+      text-decoration: underline;
+      transition: 0.3s;
+    }
+    .toggle-link:hover { color: #42a5f5; }
+
+    .form-section {
+      transition: all 0.5s ease;
+    }
+    .hidden {
+      opacity: 0;
+      pointer-events: none;
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+    }
+    
+    .error {
+      color: #ff6b6b;
+      font-size: 13px;
+      margin-top: -5px;
+    }
+  </style>
+</head>
+<body>
+  <div class="circle"></div>
+  <div class="circle"></div>
+  <div class="circle"></div>
+  <div class="circle"></div>
+
+  <div class="glass-card">
+    <!-- Login form -->
+    <div id="loginForm" class="form-section">
+      <h2>Welcome back</h2>
+      <p>Please enter your register number & password to sign in.</p>
+      <form action="/login" method="POST">
+        <input type="text" name="reg_no" placeholder="Register Number" required>
+        <input type="password" name="password" placeholder="Password" required>
+        <button type="submit" class="btn">Sign In</button>
+      </form>
+      <div class="divider">OR</div>
+      <button class="btn social google">Continue with Google</button>
+      <button class="btn social github">Continue with GitHub</button>
+      <p class="toggle-link" onclick="toggleForm()">Don’t have an account? Create one</p>
+    </div>
+
+    <!-- Signup form -->
+    <div id="signupForm" class="form-section hidden">
+      <h2>Create Account</h2>
+      <p>Enter your details to sign up.</p>
+      <form action="/signup" method="POST" onsubmit="return validateSignup()">
+        <input type="text" name="fullname" placeholder="Full Name" required>
+        <input type="text" name="reg_no" placeholder="Register Number" required>
+        <input type="password" id="password" name="password" placeholder="Password" required>
+        <input type="password" id="confirmPassword" placeholder="Confirm Password" required>
+        <p id="errorMsg" class="error"></p>
+        <button type="submit" class="btn">Sign Up</button>
+      </form>
+      <div class="divider">OR</div>
+      <button class="btn social google">Sign Up with Google</button>
+      <button class="btn social github">Sign Up with GitHub</button>
+      <p class="toggle-link" onclick="toggleForm()">Already have an account? Login</p>
+    </div>
+  </div>
+
+  <script>
+    function toggleForm() {
+      const loginForm = document.getElementById("loginForm");
+      const signupForm = document.getElementById("signupForm");
+
+      if (loginForm.classList.contains("hidden")) {
+        signupForm.classList.add("hidden");
+        loginForm.classList.remove("hidden");
+      } else {
+        loginForm.classList.add("hidden");
+        signupForm.classList.remove("hidden");
+      }
+    }
+
+    function validateSignup() {
+      const password = document.getElementById("password").value;
+      const confirmPassword = document.getElementById("confirmPassword").value;
+      const errorMsg = document.getElementById("errorMsg");
+
+      if (password !== confirmPassword) {
+        errorMsg.textContent = "Passwords do not match!";
+        return false; // Stop form submission
+      }
+      errorMsg.textContent = "";
+      return true; // Allow submission
+    }
+  </script>
+</body>
+</html>
